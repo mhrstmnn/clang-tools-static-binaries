@@ -16,7 +16,7 @@ jobs:
     strategy:
       matrix:
         clang-version: [ 12, 12.0.1, 13, 14, 15, 16, 17, 18, 19, 20 ]
-        os: [ linux-x86_64, macos-x86_64, macos-arm64, windows-x86_64 ]
+        os: [ linux-x86_64, linux-arm64, macos-x86_64, macos-arm64, windows-x86_64 ]
         include:
           # Temporarily disabled versions for testing
           # - clang-version: 3.9
@@ -71,6 +71,14 @@ jobs:
             dotexe: ''
             shacmd: 'sha512sum'
             arch: 'amd64'
+          - os: linux-arm64
+            runner: ubuntu-22.04
+            os-cmake-args: '-DLLVM_BUILD_STATIC=ON -DCMAKE_CXX_FLAGS="-s -flto" ${POSIX_CMAKE_ARGS} ${LINUX_CMAKE_ARGS}'
+            build-args: '-j$(nproc)'
+            bindir: '/build/bin'
+            dotexe: ''
+            shacmd: 'sha512sum'
+            arch: 'arm64'
           - os: macos-x86_64
             # Uses a macOS amd image here
             # https://github.com/actions/runner-images
@@ -203,7 +211,7 @@ jobs:
       if: ${{ matrix.os == 'macos-x86_64' || matrix.os == 'macos-arm64' }}
       run: otool -L ${{ matrix.release }}/build/bin/clang-format
     - name: smoke test clang-tools (macos, linux)
-      if: ${{ matrix.os == 'macos-x86_64' || matrix.os == 'linux-x86_64' || matrix.os == 'macos-arm64' }}
+      if: ${{ matrix.os == 'linux-x86_64' || matrix.os == 'linux-arm64' || matrix.os == 'macos-x86_64' || matrix.os == 'macos-arm64' }}
       run: |
         cd ${{ matrix.release }}/build/bin
         ./clang-format --version
@@ -252,11 +260,14 @@ jobs:
       cancel-in-progress: true
     strategy:
       matrix:
-        os: [ linux-x86_64, macos-x86_64, macos-arm64, windows-x86_64 ]
+        os: [ linux-x86_64, linux-arm64, macos-x86_64, macos-arm64, windows-x86_64 ]
         include:
           - os: linux-x86_64
             runner: ubuntu-22.04
             arch: 'amd64'
+          - os: linux-arm64
+            runner: ubuntu-22.04
+            arch: 'arm64'
           - os: macos-x86_64
             runner: macos-13 # Intel macOS runner test
             arch: 'amd64'
@@ -277,10 +288,10 @@ jobs:
           path: artifacts
           pattern: '**/*${{ env.suffix }}'
       - name: list files (macos, linux)
-        if: ${{ matrix.os == 'macos-x86_64' || matrix.os == 'linux-x86_64' || matrix.os == 'macos-arm64' }}
+        if: ${{ matrix.os == 'linux-x86_64' || matrix.os == 'linux-arm64' || matrix.os == 'macos-x86_64' || matrix.os == 'macos-arm64' }}
         run: ls -laR artifacts/
       - name: smoke test each clang tool (macos, linux)
-        if: ${{ matrix.os == 'macos-x86_64' || matrix.os == 'linux-x86_64' || matrix.os == 'macos-arm64' }}
+        if: ${{ matrix.os == 'linux-x86_64' || matrix.os == 'linux-arm64' || matrix.os == 'macos-x86_64' || matrix.os == 'macos-arm64' }}
         run: |
           cd artifacts
           # From the artifacts directory, loop over each executable
