@@ -72,7 +72,7 @@ jobs:
             shacmd: 'sha512sum'
             arch: 'amd64'
           - os: linux-arm64
-            runner: ubuntu-22.04
+            runner: ubuntu-22.04-arm
             os-cmake-args: '-DLLVM_BUILD_STATIC=ON -DCMAKE_CXX_FLAGS="-s -flto" ${POSIX_CMAKE_ARGS} ${LINUX_CMAKE_ARGS}'
             build-args: '-j$(nproc)'
             bindir: '/build/bin'
@@ -266,7 +266,7 @@ jobs:
             runner: ubuntu-22.04
             arch: 'amd64'
           - os: linux-arm64
-            runner: ubuntu-22.04
+            runner: ubuntu-22.04-arm
             arch: 'arm64'
           - os: macos-amd64
             runner: macos-13 # Intel macOS runner test
